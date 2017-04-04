@@ -10,12 +10,11 @@ describe Vizsla::Middleware do
       elapsed: '0s'
   end
   let(:logger) { double 'logger', debug: nil }
+  let(:rails) { double 'Rails', logger: logger }
   let(:middleware) { Vizsla::Middleware.new(app) }
 
   before do
-    rails = double 'Rails', logger: logger
     stub_const 'Vizsla::Middleware::Rails', rails
-
     Vizsla::Timer.stub(:new).and_return timer
   end
 
@@ -40,7 +39,8 @@ describe Vizsla::Middleware do
     end
 
     it 'logs the results' do
-
+      expect(rails.logger).to receive(:debug)
+      middleware.call env
     end
   end
 end
