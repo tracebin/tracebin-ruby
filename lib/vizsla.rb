@@ -1,5 +1,6 @@
-require "vizsla/version"
+require 'vizsla/version'
+require 'timer'
+require 'middleware/timer'
 
 module Vizsla
-  # Your code goes here...
 end
