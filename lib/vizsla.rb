@@ -1,6 +1,6 @@
 require 'vizsla/version'
-require 'timer'
-require 'middleware/timer'
+require 'vizsla/timer'
+require 'vizsla/middleware'
 
 module Vizsla
 end
