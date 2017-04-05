@@ -12,9 +12,9 @@ module Vizsla
         Rails.logger.debug "No data collected. Are you calling ActiveRecord at all?"
         Rails.logger.debug "=" * 50
       else
-        events.each do |event|
+        events.keys.each do |event_name|
           Rails.logger.debug "=" * 50
-          Rails.logger.debug event
+          Rails.logger.debug events[event_name]
           Rails.logger.debug "=" * 50
         end
       end

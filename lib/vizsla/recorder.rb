@@ -15,7 +15,7 @@ module Vizsla
       end
 
       def start_recording
-        self.current = []
+        self.current = {}
       end
 
       def recording?
@@ -24,7 +24,8 @@ module Vizsla
 
       def add_event(event)
         return unless self.recording?
-        self.current << event
+        self.current[event.recorder_type] ||= []
+        self.current[event.recorder_type] << event.prettify_data
       end
       alias_method :<<, :add_event
 
