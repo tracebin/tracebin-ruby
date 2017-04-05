@@ -74,6 +74,7 @@ module Vizsla
     end
 
     def sql_hook
+      return unless rails_app?
       ActiveSupport::Notifications.subscribe "sql.active_record" do |*args|
         event = SQLEvent.new(args)
         @events_data << event if event.valid?
@@ -81,6 +82,7 @@ module Vizsla
     end
 
     def process_action_hook
+      return unless rails_app?
       ActiveSupport::Notifications.subscribe "process_action.action_controller" do |*args|
         event = ControllerEvent.new(args)
         @events_data << event
@@ -88,6 +90,7 @@ module Vizsla
     end
 
     def render_template_hook
+      return unless rails_app?
       ActiveSupport::Notifications.subscribe "render_template.action_view" do |*args|
         event = ViewEvent.new(args)
         @events_data << event
@@ -99,7 +102,7 @@ module Vizsla
     # ===---------------------------===
 
     def postgres_hook
-      if !defined? Rails
+      unless rails_app?
         ::Vizsla::Patches.patch_postgres do |event_data|
           event = SQLEvent.new event_data
           @events_data << event
@@ -119,6 +122,12 @@ module Vizsla
 
     def report_events_data
       @logger.log_events(@events_data)
+    end
+
+    private
+
+    def rails_app?
+      defined? ::Rails
     end
   end
 end

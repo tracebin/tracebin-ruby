@@ -38,10 +38,6 @@ module Vizsla
           Thread.current[THREAD_LOCAL_KEY] = nil
         end
       end
-
-      at_exit do
-        self.stop_recording
-      end
     end
   end
 end
