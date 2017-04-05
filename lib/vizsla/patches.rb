@@ -5,10 +5,8 @@ module Vizsla
     include ::Vizsla::Helpers
 
     class << self
-      def patch_postgres
-        if block_given?
-          @postgres_event_hanlder = Proc.new(&block)
-        end
+      def patch_postgres(&block)
+        @postgres_event_handler = block
 
         ::PG::Connection.class_eval do
           alias_method :exec_without_profiling, :exec
