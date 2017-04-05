@@ -1,5 +1,9 @@
+require 'vizsla/recorder'
+
 module Vizsla
   class Timer
+    attr_reader :events
+
     def initialize
       @start_time = nil
       @stop_time = nil
@@ -7,9 +11,12 @@ module Vizsla
 
     def start!
       @start_time = Time.now
+      Recorder.start_recording
     end
 
     def stop!
+      @events = Recorder.events
+      Recorder.stop_recording
       @stop_time = Time.now
     end
 
