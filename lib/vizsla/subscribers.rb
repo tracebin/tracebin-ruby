@@ -101,11 +101,10 @@ module Vizsla
     # ===---------------------------===
 
     def postgres_hook
-      unless rails_app?
-        ::Vizsla::Patches.patch_postgres do |event_data|
-          event = SQLEvent.new event_data
-          @events_data << event
-        end
+      return if rails_app?
+      ::Vizsla::Patches.patch_postgres do |event_data|
+        event = SQLEvent.new event_data
+        @events_data << event
       end
     end
 
