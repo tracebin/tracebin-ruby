@@ -66,6 +66,16 @@ module Vizsla
     end
   end
 
+  class SinatraEvent < Event
+    private
+
+    def prettify_payload
+      {
+        route: event.last
+      }
+    end
+  end
+
   class Subscribers
     def initialize
       @events_data = Recorder
@@ -109,6 +119,18 @@ module Vizsla
     end
 
     # ===---------------------------===
+    # Sinatra Hooks
+    # ===---------------------------===
+
+    def sinatra_hook
+      return unless sinatra_app?
+      ::Vizsla::Patches.patch_sinatra do |event_data|
+        event = SinatraEvent.new event_data
+        @events_data << event
+      end
+    end
+
+    # ===---------------------------===
     # Aux
     # ===---------------------------===
 
@@ -127,6 +149,10 @@ module Vizsla
 
     def rails_app?
       defined? ::Rails
+    end
+
+    def sinatra_app?
+      defined? ::Sinatra
     end
   end
 end
