@@ -1,3 +1,6 @@
+require 'vizsla/timer'
+require 'vizsla/puppet_master'
+
 module Vizsla
   class Middleware
     def initialize(app)
@@ -16,13 +19,8 @@ module Vizsla
 
       timer.stop!
 
-      Rails.logger.debug "=" * 50
-      Rails.logger.debug "Request time: #{timer.elapsed}"
-      Rails.logger.debug "=" * 50
+      PuppetMaster.new(timer).process
 
-      Rails.logger.debug '=' * 50
-      Rails.logger.debug "Events: #{timer.events}"
-      Rails.logger.debug '=' * 50
       [status, headers, response]
     end
   end
