@@ -5,7 +5,9 @@ module Vizsla
 
     class << self
       def current
-        Thread.current[THREAD_LOCAL_KEY]
+        LOCK.synchronize do
+          Thread.current[THREAD_LOCAL_KEY]
+        end
       end
 
       def current=(val)
@@ -30,7 +32,13 @@ module Vizsla
       end
 
       def stop_recording
-        Thread.current[THREAD_LOCAL_KEY] = nil
+        LOCK.synchronize do
+          Thread.current[THREAD_LOCAL_KEY] = nil
+        end
+      end
+
+      at_exit do
+        self.stop_recording
       end
     end
   end
