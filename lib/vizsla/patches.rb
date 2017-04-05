@@ -17,8 +17,6 @@ module Vizsla
             result       = exec_params_without_profiling(*args, &blk)
             end_time     = Time.now
 
-            require 'pry'; binding.pry
-
             event_data = [
               'sql.postgres_exec',
               start_time,
@@ -48,6 +46,30 @@ module Vizsla
             ]
 
             ::Vizsla::Patches.handle_event :postgres, event_data
+
+            result
+          end
+        end
+      end
+
+      def patch_sinatra(&block)
+        @sinatra_event_handler = block
+        ::Sinatra::Base.class_eval do
+          alias_method :dispatch_without_profiling!, :dispatch!
+
+          def dispatch!(*args, &block)
+            start_time = Time.now
+            result = dispatch_without_profiling(*args, *block)
+            end_time = Time.now
+            route = env['sinatra.route']
+            event_data = [
+              'sinatra.route_exec',
+              start_time,
+              end_time,
+              route
+            ]
+
+            ::Vizsla::Patches.handle_event :sinatra, event_data
 
             result
           end
