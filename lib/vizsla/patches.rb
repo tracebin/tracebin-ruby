@@ -59,9 +59,10 @@ module Vizsla
 
           def dispatch!(*args, &block)
             start_time = Time.now
-            result = dispatch_without_profiling(*args, *block)
+            result = dispatch_without_profiling!(*args, *block)
             end_time = Time.now
             route = env['sinatra.route']
+
             event_data = [
               'sinatra.route_exec',
               start_time,

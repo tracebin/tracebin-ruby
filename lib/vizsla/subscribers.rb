@@ -1,81 +1,8 @@
 require 'vizsla/recorder' unless defined?(::Vizsla::Recorder)
 require 'vizsla/patches' unless defined?(::Vizsla::Patches)
+require 'vizsla/events' unless defined?(::Vizsla::Events)
 
 module Vizsla
-  class Event
-    attr_reader :event
-
-    def initialize(event)
-      @event = event
-    end
-
-    def recorder_type
-      event[0]
-    end
-
-    def valid?
-      true
-    end
-
-    def prettify_data
-      {
-        event_started: event[1],
-        event_ended: event[2],
-        event_duration: event[2] - event[1],
-        event_payload: prettify_payload
-      }
-    end
-  end
-
-  class SQLEvent < Event
-    def valid?
-      event.last[:name] != "SCHEMA"
-    end
-
-    private
-
-    def prettify_payload
-      {
-        query: event.last[:sql]
-      }
-    end
-  end
-
-  class ControllerEvent < Event
-    private
-
-    def prettify_payload
-      payload = event.last
-      {
-        format: payload[:format],
-        controller: payload[:controller],
-        action: payload[:action],
-        path: payload[:path],
-        db_runtime: payload[:db_runtime]
-      }
-    end
-  end
-
-  class ViewEvent < Event
-    private
-
-    def prettify_payload
-      {
-        layout: event.last[:layout]
-      }
-    end
-  end
-
-  class SinatraEvent < Event
-    private
-
-    def prettify_payload
-      {
-        route: event.last
-      }
-    end
-  end
-
   class Subscribers
     def initialize
       @events_data = Recorder
@@ -139,6 +66,7 @@ module Vizsla
       process_action_hook
       render_template_hook
       postgres_hook
+      sinatra_hook
     end
 
     def report_events_data
