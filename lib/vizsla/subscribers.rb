@@ -1,4 +1,5 @@
 require 'vizsla/recorder' unless defined?(::Vizsla::Recorder)
+require 'vizsla/patches' unless defined?(::Vizsla::Patches)
 
 module Vizsla
   class Event
@@ -92,6 +93,23 @@ module Vizsla
         @events_data << event
       end
     end
+
+    # ===---------------------------===
+    # Non-Rails Hooks
+    # ===---------------------------===
+
+    def postgres_hook
+      if !defined? Rails
+        ::Vizsla::Patches.patch_postgres do |event_data|
+          event = SQLEvent.new event_data
+          @events_data << event
+        end
+      end
+    end
+
+    # ===---------------------------===
+    # Aux
+    # ===---------------------------===
 
     def collect_events_data
       sql_hook
