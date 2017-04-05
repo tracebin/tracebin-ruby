@@ -1,22 +1,36 @@
 module Vizsla
   class RequestLogger
     def request_response_time(query_time)
-      Rails.logger.debug "=" * 50
-      Rails.logger.debug "Total request/response time: #{query_time} seconds."
-      Rails.logger.debug "=" * 50
+      log "=" * 50
+      log "Total request/response time: #{query_time} seconds."
+      log "=" * 50
     end
 
     def log_events(events)
       if events.empty?
-        Rails.logger.debug "=" * 50
-        Rails.logger.debug "No data collected. Are you calling ActiveRecord at all?"
-        Rails.logger.debug "=" * 50
+        log "=" * 50
+        log "No data collected. Are you calling ActiveRecord at all?"
+        log "=" * 50
       else
         events.keys.each do |event_name|
-          Rails.logger.debug "=" * 50
-          Rails.logger.debug events[event_name]
-          Rails.logger.debug "=" * 50
+          log "=" * 50
+          log events[event_name]
+          log "=" * 50
         end
+      end
+    end
+
+    private
+
+    def rails_app?
+      defined? ::Rails
+    end
+
+    def log(text)
+      if rails_app?
+        Rails.logger.debug text
+      else
+        puts text
       end
     end
   end
