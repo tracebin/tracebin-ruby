@@ -26,6 +26,7 @@ module Vizsla
         return unless self.recording?
         self.current << event
       end
+      alias_method :<<, :add_event
 
       def events
         self.current

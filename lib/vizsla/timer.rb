@@ -15,9 +15,13 @@ module Vizsla
     end
 
     def stop!
-      @events = Recorder.events
+      collect_events
       Recorder.stop_recording
       @stop_time = Time.now
+    end
+
+    def collect_events
+      @events = Recorder.events
     end
 
     def elapsed
