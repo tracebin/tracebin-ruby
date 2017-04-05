@@ -69,7 +69,6 @@ module Vizsla
   class Subscribers
     def initialize
       @events_data = Recorder
-      # @logger = RequestLogger.new
       collect_events_data
     end
 
@@ -118,6 +117,7 @@ module Vizsla
       sql_hook
       process_action_hook
       render_template_hook
+      postgres_hook
     end
 
     def report_events_data
