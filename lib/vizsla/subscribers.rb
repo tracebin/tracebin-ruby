@@ -69,10 +69,6 @@ module Vizsla
       sinatra_hook
     end
 
-    def report_events_data
-      @logger.log_events(@events_data)
-    end
-
     private
 
     def rails_app?

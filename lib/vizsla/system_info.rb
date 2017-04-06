@@ -1,5 +1,5 @@
 module Vizsla
-  module SystemInfo
+  class SystemInfo
     def self.ruby_os_identifier
       RbConfig::CONFIG['target_os']
     end
@@ -10,6 +10,34 @@ module Vizsla
 
     def self.linux?
       !!(ruby_os_identifier =~ /linux/i)
+    end
+
+    def self.disk_info(disks)
+      disk_stats = read_iostat(disks)
+      {}
+    end
+
+    def self.read_iostat(disks)
+      disks_info = {}
+
+      if disks.is_a?(Array)
+        disks.each do |disk|
+          normalized_disk_data = disk.split(/\n/).map(&:strip)
+          disk_name = normalized_disk_data[0].split(/\s+/)[0]
+          disk_stats = normalized_disk_data.last.split(/\s+/)[0, 3].map(&:to_f)
+          disks_info[disk_name] = disk_stats
+        end
+      else
+          normalized_disk_data = disks.split(/\n/).map(&:strip)
+          disk_name = normalized_disk_data[0].split(/\s+/)[0]
+          disk_stats = normalized_disk_data.last.split(/\s+/)[0, 3].map(&:to_f)
+          disks_info[disk_name] = disk_stats
+      end
+      disks_info
+    end
+
+    def self.mem_info
+      {}
     end
 
     def self.processor_info
@@ -24,6 +52,7 @@ module Vizsla
         proc_string = read_proc('/proc/cpuinfo')
         info = parse_proc_cpuinfo_string(proc_string)
       end
+      info
     end
 
     def self.get_sysctl_value(key)
@@ -57,10 +86,21 @@ module Vizsla
       end
 
       {
-        model_name: model_name
+        model_name: model_name,
         processor_count: units.count,
         core_count: cores.count,
         logical_cpu_count: threads.count
+      }
+    end
+
+    def all_data
+      cpu_data = self.class.processor_info
+      mem_data = self.class.mem_info
+      disk_data = self.class.disk_info("disk0")
+      {
+        cpu: cpu_data,
+        mem: mem_data,
+        disk: disk_data
       }
     end
   end

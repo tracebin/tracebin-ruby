@@ -20,6 +20,14 @@ module Vizsla
       end
     end
 
+    def log_system_info(system_data)
+      system_data.keys.each do |category|
+        log "=" * 50
+        log "Category: #{category}, value: #{system_data[category]}"
+        log "=" * 50
+      end
+    end
+
     private
 
     def rails_app?
