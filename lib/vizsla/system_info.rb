@@ -12,26 +12,30 @@ module Vizsla
       !!(ruby_os_identifier =~ /linux/i)
     end
 
-    def self.disk_info(disks)
-      disk_stats = read_iostat(disks)
-      {}
+    # expects an array of disks to monitor
+    def self.disk_info(disks = ["disk0"])
+      if darwin?
+        read_iostat(disks)
+      elsif linux?
+        # output is very different. Will need a new parser method
+        raise NotImplementedError
+      end
     end
 
     def self.read_iostat(disks)
       disks_info = {}
+      captured_data = []
 
-      if disks.is_a?(Array)
-        disks.each do |disk|
-          normalized_disk_data = disk.split(/\n/).map(&:strip)
-          disk_name = normalized_disk_data[0].split(/\s+/)[0]
-          disk_stats = normalized_disk_data.last.split(/\s+/)[0, 3].map(&:to_f)
-          disks_info[disk_name] = disk_stats
-        end
-      else
-          normalized_disk_data = disks.split(/\n/).map(&:strip)
-          disk_name = normalized_disk_data[0].split(/\s+/)[0]
-          disk_stats = normalized_disk_data.last.split(/\s+/)[0, 3].map(&:to_f)
-          disks_info[disk_name] = disk_stats
+      disks.each do |disk|
+        disk_data = `iostat -Ud #{disk}`.strip.split(/\n/)
+        captured_data << disk_data
+        disks_info["load_average"] = disk_data.last.strip.split(/\s+/)[3..-1].map(&:to_f) unless disks_info["load_average"]
+      end
+
+      captured_data.each_with_index do |disk, index|
+        disk_name = disks[index]
+        disk_stats = disk.last.strip.split(/\s+/)[0, 3]
+        disks_info[disk_name] = disk_stats
       end
       disks_info
     end
@@ -76,7 +80,7 @@ module Vizsla
           if matched_line = line.match(/physical\ id\s*\:\s*(\d)/i)
             id = matched_line[1]
             units[id] = true
-          elsif matched_line = line.match(/core \id\s*\:\s*(\d)/i)
+          elsif matched_line = line.match(/core\ id\s*\:\s*(\d)/i)
             id = matched_line[1]
             cores[id] = true
           elsif matched_line = line.match(/model\ name\s*\:\s*(.*)/i)
@@ -96,11 +100,11 @@ module Vizsla
     def all_data
       cpu_data = self.class.processor_info
       mem_data = self.class.mem_info
-      disk_data = self.class.disk_info("disk0")
+      disk_data = self.class.disk_info
       {
-        cpu: cpu_data,
-        mem: mem_data,
-        disk: disk_data
+        CPU: cpu_data,
+        Memory: mem_data,
+        Disks: disk_data
       }
     end
   end
