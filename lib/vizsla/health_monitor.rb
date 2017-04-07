@@ -1,4 +1,5 @@
 require 'vizsla/system_info'
+require 'concurrent'
 
 module Vizsla
   class HealthMonitor
