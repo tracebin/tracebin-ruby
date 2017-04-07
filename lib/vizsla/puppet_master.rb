@@ -2,9 +2,9 @@ require 'vizsla/logger'
 
 module Vizsla
   class PuppetMaster
-    def initialize(puppet)
+    def initialize(puppet, options = {})
       @puppet = puppet
-      @logger = RequestLogger.new
+      @logger = RequestLogger.new(options[:logger])
     end
 
     def process

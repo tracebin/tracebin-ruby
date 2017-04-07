@@ -1,5 +1,9 @@
 module Vizsla
   class RequestLogger
+    def initialize(logger_override = nil)
+      @logger_override ||= logger_override
+    end
+
     def request_response_time(query_time)
       log "=" * 50
       log "Total request/response time: #{query_time} seconds."
@@ -35,7 +39,9 @@ module Vizsla
     end
 
     def log(text)
-      if rails_app?
+      if !@logger_override.nil?
+        @logger_override.info text
+      elsif rails_app?
         Rails.logger.debug text
       else
         puts text

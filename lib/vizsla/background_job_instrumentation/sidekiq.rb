@@ -12,7 +12,7 @@ module Vizsla
 
         timer.stop!
 
-        PuppetMaster.new(timer).process
+        PuppetMaster.new(timer, logger: worker.logger).process
       end
     end
   end
