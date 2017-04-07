@@ -51,6 +51,11 @@ module Vizsla
       ::Vizsla::BackgroundJobInstrumentation.install :sidekiq
     end
 
+    def resque_hook
+      return unless defined? ::Resque
+      ::Vizsla::BackgroundJobInstrumentation.install :resque
+    end
+
     # ===---------------------------===
     # Sinatra Hooks
     # ===---------------------------===
@@ -74,6 +79,7 @@ module Vizsla
       postgres_hook
       sinatra_hook
       sidekiq_hook
+      resque_hook
     end
 
     private

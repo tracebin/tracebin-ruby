@@ -13,5 +13,16 @@ module Vizsla
         end
       end
     end
+
+    def self.resque
+      require 'vizsla/background_job_instrumentation/resque'
+
+      ::Resque::Job.class_eval do
+        def self.new(*args)
+          super(*args).extend ::Vizsla::BackgroundJobInstrumentation::
+            ResqueInstrumentationInstaller
+        end
+      end
+    end
   end
 end
