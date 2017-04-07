@@ -5,16 +5,43 @@ module Vizsla
     include ::Vizsla::Helpers
 
     class << self
-      def patch_postgres(&blk)
-        @postgres_event_handler = blk
+      def patch_mysql2(&block)
+        @mysql2_event_handler = block
+
+        ::Mysql2::Client.class_eval do
+          alias_method :query_without_profiling, :query
+
+          def query(*args, &block)
+            start_time   = Time.now
+            result       = query_without_profiling(*args, &block)
+            end_time     = Time.now
+
+            event_data = [
+              'sql.mysql2_query',
+              start_time,
+              end_time,
+              {
+                sql: args[0]
+              }
+            ]
+
+            ::Vizsla::Patches.handle_event :mysql2, event_data
+
+            result
+          end
+        end
+      end
+
+      def patch_postgres(&block)
+        @postgres_event_handler = block
 
         ::PG::Connection.class_eval do
           alias_method :exec_without_profiling, :exec
           alias_method :exec_params_without_profiling, :exec_params
 
-          def exec_params(*args, &blk)
+          def exec_params(*args, &block)
             start_time   = Time.now
-            result       = exec_params_without_profiling(*args, &blk)
+            result       = exec_params_without_profiling(*args, &block)
             end_time     = Time.now
 
             event_data = [
@@ -31,9 +58,9 @@ module Vizsla
             result
           end
 
-          def exec(*args, &blk)
+          def exec(*args, &block)
             start_time   = Time.now
-            result       = exec_without_profiling(*args, &blk)
+            result       = exec_without_profiling(*args, &block)
             end_time     = Time.now
 
             event_data = [
