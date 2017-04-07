@@ -1,6 +1,7 @@
-require 'vizsla/recorder' unless defined?(::Vizsla::Recorder)
-require 'vizsla/patches' unless defined?(::Vizsla::Patches)
-require 'vizsla/events' unless defined?(::Vizsla::Events)
+require 'vizsla/recorder'
+require 'vizsla/patches'
+require 'vizsla/events'
+require 'vizsla/background_job_instrumentation'
 
 module Vizsla
   class Subscribers
@@ -45,12 +46,23 @@ module Vizsla
       end
     end
 
+
     def mysql2_hook
       return if rails_app? && !defined? ::Mysql2
       ::Vizsla::Patches.patch_mysql2 do |event_data|
         event = SQLEvent.new event_data
         @events_data << event
       end
+    end
+      
+    def sidekiq_hook
+      return unless defined? ::Sidekiq
+      ::Vizsla::BackgroundJobInstrumentation.install :sidekiq
+    end
+
+    def resque_hook
+      return unless defined? ::Resque
+      ::Vizsla::BackgroundJobInstrumentation.install :resque
     end
 
     # ===---------------------------===
@@ -76,6 +88,8 @@ module Vizsla
       postgres_hook
       sinatra_hook
       mysql2_hook
+      sidekiq_hook
+      resque_hook
     end
 
     private
