@@ -1,6 +1,7 @@
-require 'vizsla/recorder' unless defined?(::Vizsla::Recorder)
-require 'vizsla/patches' unless defined?(::Vizsla::Patches)
-require 'vizsla/events' unless defined?(::Vizsla::Events)
+require 'vizsla/recorder'
+require 'vizsla/patches'
+require 'vizsla/events'
+require 'vizsla/background_job_instrumentation'
 
 module Vizsla
   class Subscribers
@@ -45,6 +46,11 @@ module Vizsla
       end
     end
 
+    def sidekiq_hook
+      return unless defined? ::Sidekiq
+      ::Vizsla::BackgroundJobInstrumentation.install :sidekiq
+    end
+
     # ===---------------------------===
     # Sinatra Hooks
     # ===---------------------------===
@@ -67,6 +73,7 @@ module Vizsla
       render_template_hook
       postgres_hook
       sinatra_hook
+      sidekiq_hook
     end
 
     private
