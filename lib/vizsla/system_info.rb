@@ -12,6 +12,15 @@ module Vizsla
       !!(ruby_os_identifier =~ /linux/i)
     end
 
+    def self.machine_info
+      ip_string = `dig +short myip.opendns.com @resolver1.opendns.com`.strip
+      hostname = `hostname`.strip
+      {
+        hostname: hostname,
+        ip: ip_string
+      }
+    end
+
     # expects an array of disks to monitor
     def self.disk_info(disks = ["disk0"])
       if darwin?
@@ -35,13 +44,45 @@ module Vizsla
       captured_data.each_with_index do |disk, index|
         disk_name = disks[index]
         disk_stats = disk.last.strip.split(/\s+/)[0, 3]
-        disks_info[disk_name] = disk_stats
+        disks_info[disk_name] = {
+          kb_per_trans: disk_stats[0].to_f,
+          trans_num: disk_stats[1].to_f,
+          mb_per_sec: disk_stats[2].to_f
+        }
       end
       disks_info
     end
 
     def self.mem_info
-      {}
+      if darwin?
+        total, wired, free, used = get_mach_memory_stats
+        return {
+          total_memory: total + " MB",
+          wired_memory: wired + " MB",
+          free_memory: free + " MB",
+          used_memory: used + " MB"
+        }
+      elsif linux?
+        total, cache, free, used, available = get_linux_memory_stats
+        return {
+          total_memory: total + " MB",
+          wired_memory: cache + " MB",
+          free_memory: free + " MB",
+          used_memory: used + " MB",
+          available_memory: available + " MB"
+        }
+      end
+    end
+
+    def self.get_mach_memory_stats
+      used, wired, free = `top -l 1 -s 0 | grep PhysMem`.scan(/\d+/)
+      total = `sysctl -n hw.memsize`.to_i / 1024 / 1024
+      [total.to_s, wired, free, used]
+    end
+
+    def self.get_linux_memory_stats
+      total, used, free, _, cache, available = `free | grep Mem`.scan(/\d+/)
+      [total, cache, free, used, available]
     end
 
     def self.processor_info
@@ -101,10 +142,12 @@ module Vizsla
       cpu_data = self.class.processor_info
       mem_data = self.class.mem_info
       disk_data = self.class.disk_info
+      machine_id = self.class.machine_info
       {
         CPU: cpu_data,
         Memory: mem_data,
-        Disks: disk_data
+        Disks: disk_data,
+        Machine_id: machine_id
       }
     end
   end
