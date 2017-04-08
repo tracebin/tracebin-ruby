@@ -9,7 +9,9 @@ module Vizsla
           health = SystemInfo.new
           PuppetMaster.new(health).process
         end
+
         @task.execute
+
         self
       end
     end
