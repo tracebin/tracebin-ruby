@@ -15,8 +15,8 @@ module Vizsla
       def method_missing(method_sym, *args, &block)
         if method_sym.to_s =~ PATCH_METHOD_REGEX
           patch_name = $1
-          require "vizsla/patches/#{patch_name}"
           self.instance_variable_set "@#{patch_name}_event_handler", block
+          require "vizsla/patches/#{patch_name}"
         else
           super
         end

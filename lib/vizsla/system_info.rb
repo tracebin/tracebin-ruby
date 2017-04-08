@@ -1,5 +1,24 @@
 module Vizsla
   class SystemInfo
+    def initialize(options = {})
+      @process = options[:process] || :web
+    end
+
+    def all_data
+      cpu_data = self.class.processor_info
+      mem_data = self.class.mem_info
+      disk_data = self.class.disk_info
+      machine_id = self.class.machine_info
+
+      {
+        Process: @process.to_s,
+        CPU: cpu_data,
+        Memory: mem_data,
+        Disks: disk_data,
+        Machine_id: machine_id
+      }
+    end
+
     def self.ruby_os_identifier
       RbConfig::CONFIG['target_os']
     end
@@ -135,20 +154,6 @@ module Vizsla
         processor_count: units.count,
         core_count: cores.count,
         logical_cpu_count: threads.count
-      }
-    end
-
-    def all_data
-      cpu_data = self.class.processor_info
-      mem_data = self.class.mem_info
-      disk_data = self.class.disk_info
-      machine_id = self.class.machine_info
-
-      {
-        CPU: cpu_data,
-        Memory: mem_data,
-        Disks: disk_data,
-        Machine_id: machine_id
       }
     end
   end
