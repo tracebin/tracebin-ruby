@@ -60,7 +60,7 @@ module Vizsla
       payload = event.last
 
       {
-        template_file: payload[:identifier]
+        template_file: payload[:identifier],
         layout: payload[:layout]
       }
     end
