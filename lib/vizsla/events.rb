@@ -57,8 +57,11 @@ module Vizsla
     private
 
     def prettify_payload
+      payload = event.last
+
       {
-        layout: event.last[:layout]
+        template_file: payload[:identifier]
+        layout: payload[:layout]
       }
     end
   end

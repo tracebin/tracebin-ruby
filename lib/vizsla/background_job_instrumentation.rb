@@ -4,6 +4,8 @@ module Vizsla
       self.send inst_name
     end
 
+    private
+
     def self.sidekiq
       require 'vizsla/background_job_instrumentation/sidekiq'
 

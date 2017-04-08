@@ -1,21 +1,17 @@
 module Vizsla
   class RequestLogger
     def initialize(logger_override = nil)
-      @logger_override ||= logger_override
+      @logger_override = logger_override
     end
 
-    def request_response_time(query_time)
+    def transaction_time(query_time)
       log "=" * 50
-      log "Total request/response time: #{query_time} seconds."
+      log "Total transaction time: #{query_time} ms."
       log "=" * 50
     end
 
     def log_events(events)
-      if events.empty?
-        log "=" * 50
-        log "No data collected. Are you calling ActiveRecord at all?"
-        log "=" * 50
-      else
+      unless events.empty?
         events.keys.each do |event_name|
           log "=" * 50
           log events[event_name]

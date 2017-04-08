@@ -143,6 +143,7 @@ module Vizsla
       mem_data = self.class.mem_info
       disk_data = self.class.disk_info
       machine_id = self.class.machine_info
+
       {
         CPU: cpu_data,
         Memory: mem_data,
