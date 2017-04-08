@@ -1,7 +1,11 @@
 require 'vizsla/recorder'
+require 'vizsla/helpers'
+
 
 module Vizsla
   class Timer
+    include ::Vizsla::Helpers
+
     attr_reader :events
 
     def initialize
@@ -25,7 +29,7 @@ module Vizsla
     end
 
     def elapsed
-      "#{(@stop_time - @start_time).round 2}s"
+      to_milliseconds @stop_time - @start_time
     end
   end
 end

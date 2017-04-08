@@ -10,8 +10,31 @@ module Vizsla
       collect_events_data
     end
 
+    def collect_events_data
+      if rails_app?
+        rails_hooks
+      else
+        other_hooks
+      end
+    end
+
+    def rails_hooks
+      sql_hook
+      process_action_hook
+      render_template_hook
+    end
+
+    def other_hooks
+      sinatra_hook if sinatra_app?
+
+      postgres_hook
+      mysql2_hook
+
+      sidekiq_hook
+      resque_hook
+    end
+
     def sql_hook
-      return unless rails_app?
       ActiveSupport::Notifications.subscribe "sql.active_record" do |*args|
         event = SQLEvent.new(args)
         @events_data << event if event.valid?
@@ -19,7 +42,6 @@ module Vizsla
     end
 
     def process_action_hook
-      return unless rails_app?
       ActiveSupport::Notifications.subscribe "process_action.action_controller" do |*args|
         event = ControllerEvent.new(args)
         @events_data << event
@@ -27,7 +49,6 @@ module Vizsla
     end
 
     def render_template_hook
-      return unless rails_app?
       ActiveSupport::Notifications.subscribe "render_template.action_view" do |*args|
         event = ViewEvent.new(args)
         @events_data << event
@@ -39,7 +60,7 @@ module Vizsla
     # ===---------------------------===
 
     def postgres_hook
-      return if rails_app? && !defined? ::PG
+      return unless defined? ::PG
       ::Vizsla::Patches.patch_postgres do |event_data|
         event = SQLEvent.new event_data
         @events_data << event
@@ -48,13 +69,13 @@ module Vizsla
 
 
     def mysql2_hook
-      return if rails_app? && !defined? ::Mysql2
+      return unless defined? ::Mysql2
       ::Vizsla::Patches.patch_mysql2 do |event_data|
         event = SQLEvent.new event_data
         @events_data << event
       end
     end
-      
+
     def sidekiq_hook
       return unless defined? ::Sidekiq
       ::Vizsla::BackgroundJobInstrumentation.install :sidekiq
@@ -75,21 +96,6 @@ module Vizsla
         event = SinatraEvent.new event_data
         @events_data << event
       end
-    end
-
-    # ===---------------------------===
-    # Aux
-    # ===---------------------------===
-
-    def collect_events_data
-      sql_hook
-      process_action_hook
-      render_template_hook
-      postgres_hook
-      sinatra_hook
-      mysql2_hook
-      sidekiq_hook
-      resque_hook
     end
 
     private
