@@ -28,12 +28,22 @@ module Vizsla
 
     def other_hooks
       sinatra_hook if sinatra_app?
+      db_hooks
+      background_job_hooks
+    end
 
+    def background_job_hooks
+      if defined? ::ActiveJob
+        active_job_hook
+      else
+        sidekiq_hook
+        resque_hook
+      end
+    end
+
+    def db_hooks
       postgres_hook
       mysql2_hook
-
-      sidekiq_hook
-      resque_hook
     end
 
     # ===---------------------------===
@@ -50,6 +60,10 @@ module Vizsla
 
     def render_template_hook
       subscribe_asn 'render_template.action_view', ViewEvent
+    end
+
+    def active_job_hook
+      ::Vizsla::BackgroundJobInstrumentation.install :active_job
     end
 
     # ===---------------------------===
