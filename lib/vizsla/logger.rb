@@ -6,7 +6,7 @@ module Vizsla
 
     def transaction_time(query_time)
       log "=" * 50
-      log "Total transaction time: #{query_time} seconds."
+      log "Total transaction time: #{query_time} ms."
       log "=" * 50
     end
 
