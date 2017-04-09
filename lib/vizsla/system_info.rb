@@ -40,14 +40,18 @@ module Vizsla
       }
     end
 
-    # expects an array of disks to monitor
     def self.disk_info(disks = ["disk0"])
       if darwin?
         read_iostat(disks)
       elsif linux?
-        # output is very different. Will need a new parser method
-        raise NotImplementedError
+        parse_proc
       end
+    end
+
+    def self.parse_proc
+      {
+        load_average: `cat /proc/loadavg | awk '{print $1,$2,$3}'`.strip
+      }
     end
 
     def self.read_iostat(disks)
@@ -100,8 +104,8 @@ module Vizsla
     end
 
     def self.get_linux_memory_stats
-      total, used, free, _, cache, available = `free | grep Mem`.scan(/\d+/)
-      [total, cache, free, used, available]
+      total, used, free, _, cache, available = `free | grep Mem`.scan(/\d+/).map { |mem_stat| mem_stat.to_i / 1024 }
+      [total.to_s, cache.to_s, free.to_s, used.to_s, available.to_s]
     end
 
     def self.processor_info
