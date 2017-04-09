@@ -26,5 +26,9 @@ module Vizsla
         end
       end
     end
+
+    def self.active_job
+      require 'vizsla/background_job_instrumentation/active_job'
+    end
   end
 end
