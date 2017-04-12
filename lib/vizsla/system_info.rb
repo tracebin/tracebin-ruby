@@ -4,6 +4,15 @@ module Vizsla
       @process = options[:process] || :web
     end
 
+    def payload
+      {
+        type: 'SystemInfo',
+        name: @process.to_s,
+
+        data: all_data
+      }
+    end
+
     def all_data
       cpu_data = self.class.processor_info
       mem_data = self.class.mem_info
@@ -11,7 +20,6 @@ module Vizsla
       machine_id = self.class.machine_info
 
       {
-        Process: @process.to_s,
         CPU: cpu_data,
         Memory: mem_data,
         Disks: disk_data,

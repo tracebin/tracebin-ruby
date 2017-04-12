@@ -25,8 +25,17 @@ module Vizsla
       @stop_time = Time.now
     end
 
-    def collect_events
-      @events = Recorder.events
+    def payload
+      {
+        type: transaction_type,
+        name: @transaction_name,
+
+        start: @start_time,
+        stop: @stop_time,
+        elapsed: elapsed,
+
+        data: @events
+      }
     end
 
     def elapsed
@@ -35,6 +44,12 @@ module Vizsla
 
     def transaction_type
       'request_response'
+    end
+
+    private
+
+    def collect_events
+      @events = Recorder.events
     end
   end
 end

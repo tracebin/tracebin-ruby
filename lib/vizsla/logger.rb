@@ -4,40 +4,36 @@ module Vizsla
       @logger_override = logger_override
     end
 
-    def transaction_time(query_time)
-      log "=" * 50
-      log "Total transaction time: #{query_time} ms."
-      log "=" * 50
+    def display_payload(payload)
+      output = '=' * 50 + "\n"
+
+      str_append_hash output, payload
+
+      output += '=' * 50
+
+      log output
     end
 
-    def transaction_type(type)
-      log '=' * 50
-      log "Transaction type: #{type}"
-      log '=' * 50
-    end
-
-    def transaction_name(transaction_name)
-      log '=' * 50
-      log "Transaction name: #{transaction_name}"
-      log '=' * 50
-    end
-
-    def log_events(events)
-      unless events.empty?
-        events.keys.each do |event_name|
-          log "=" * 50
-          log events[event_name]
-          log "=" * 50
+    def str_append_hash(str, hsh, bumper = '')
+      hsh.keys.each do |key|
+        if hsh[key].is_a? Hash
+          str << "#{bumper}#{key}:\n"
+          str_append_hash str, hsh[key], bumper + '  '
+        elsif hsh[key].is_a? Array
+          str << "#{bumper}#{key}:\n"
+          hsh[key].each do |ele|
+            if ele.is_a? Hash
+              str_append_hash str, ele, bumper + '  '
+            else
+              str << "#{bumper}#{ele}"
+            end
+          end
+        else
+          str << "#{bumper}#{key}: #{hsh[key]}\n"
         end
       end
-    end
 
-    def log_system_info(system_data)
-      system_data.keys.each do |category|
-        log "=" * 50
-        log "Category: #{category}, value: #{system_data[category]}"
-        log "=" * 50
-      end
+      str
     end
 
     private
