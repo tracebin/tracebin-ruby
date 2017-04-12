@@ -8,12 +8,7 @@ module Vizsla
     end
 
     def process
-      if @puppet.is_a? Vizsla::Timer
-        @logger.transaction_time @puppet.elapsed
-        @logger.log_events @puppet.events
-      elsif @puppet.is_a? Vizsla::SystemInfo
-        @logger.log_system_info(@puppet.all_data)
-      end
+      @logger.display_payload @puppet.payload
     end
   end
 end

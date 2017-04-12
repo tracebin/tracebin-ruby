@@ -6,9 +6,10 @@ module Vizsla
   class Timer
     include ::Vizsla::Helpers
 
-    attr_reader :events
+    attr_reader :events, :transaction_name
 
-    def initialize
+    def initialize(transaction_name = nil)
+      @transaction_name = transaction_name
       @start_time = nil
       @stop_time = nil
     end
@@ -24,12 +25,31 @@ module Vizsla
       @stop_time = Time.now
     end
 
-    def collect_events
-      @events = Recorder.events
+    def payload
+      {
+        type: transaction_type,
+        name: @transaction_name,
+
+        start: @start_time,
+        stop: @stop_time,
+        elapsed: elapsed,
+
+        data: @events
+      }
     end
 
     def elapsed
       to_milliseconds @stop_time - @start_time
+    end
+
+    def transaction_type
+      'request_response'
+    end
+
+    private
+
+    def collect_events
+      @events = Recorder.events
     end
   end
 end
