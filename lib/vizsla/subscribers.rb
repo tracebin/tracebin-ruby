@@ -18,6 +18,8 @@ module Vizsla
       else
         other_hooks
       end
+
+      background_job_hooks
     end
 
     def rails_hooks
@@ -29,7 +31,6 @@ module Vizsla
     def other_hooks
       sinatra_hook if sinatra_app?
       db_hooks
-      background_job_hooks
     end
 
     def background_job_hooks

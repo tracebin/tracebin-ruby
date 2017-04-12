@@ -5,7 +5,7 @@ module Vizsla
   module BackgroundJobInstrumentation
     class Sidekiq
       def call(worker, msg, queue, *args)
-        timer = BackgroundTimer.new
+        timer = BackgroundTimer.new worker.class.name.split('::').last
         timer.start!
 
         yield

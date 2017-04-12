@@ -8,14 +8,14 @@ module Vizsla
 
     class << self
       def handle_event(handler_name, event_data)
-        handler = self.instance_variable_get "@#{handler_name}_event_handler"
+        handler = instance_variable_get "@#{handler_name}_event_handler"
         handler.call event_data unless handler.nil?
       end
 
       def method_missing(method_sym, *args, &block)
         if method_sym.to_s =~ PATCH_METHOD_REGEX
           patch_name = $1
-          self.instance_variable_set "@#{patch_name}_event_handler", block
+          instance_variable_set "@#{patch_name}_event_handler", block
           require "vizsla/patches/#{patch_name}"
         else
           super

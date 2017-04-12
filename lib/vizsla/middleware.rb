@@ -12,7 +12,7 @@ module Vizsla
     end
 
     def __call(env)
-      timer = Timer.new
+      timer = Timer.new 'RackTransaction'
       timer.start!
 
       status, headers, response = @app.call(env)

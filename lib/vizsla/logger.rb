@@ -10,6 +10,18 @@ module Vizsla
       log "=" * 50
     end
 
+    def transaction_type(type)
+      log '=' * 50
+      log "Transaction type: #{type}"
+      log '=' * 50
+    end
+
+    def transaction_name(transaction_name)
+      log '=' * 50
+      log "Transaction name: #{transaction_name}"
+      log '=' * 50
+    end
+
     def log_events(events)
       unless events.empty?
         events.keys.each do |event_name|

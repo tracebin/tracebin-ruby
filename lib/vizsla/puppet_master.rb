@@ -9,6 +9,8 @@ module Vizsla
 
     def process
       if @puppet.is_a? Vizsla::Timer
+        @logger.transaction_type @puppet.transaction_type
+        @logger.transaction_name @puppet.transaction_name if @puppet.transaction_name
         @logger.transaction_time @puppet.elapsed
         @logger.log_events @puppet.events
       elsif @puppet.is_a? Vizsla::SystemInfo
