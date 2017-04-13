@@ -1,4 +1,4 @@
-require 'vizsla/system_info'
+require 'vizsla/system_health_sample'
 require 'concurrent'
 
 module Vizsla
@@ -6,7 +6,7 @@ module Vizsla
     class << self
       def start
         @task = Concurrent::TimerTask.new(execution_interval: 10) do
-          health = SystemInfo.new
+          health = SystemHealthSample.new
           PuppetMaster.new(health).process
         end
 

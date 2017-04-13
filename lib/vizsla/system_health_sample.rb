@@ -1,22 +1,27 @@
 module Vizsla
-  class SystemInfo
+  class SystemHealthSample
     def initialize(options = {})
       @process = options[:process] || :web
+      @metrics = sample_metrics
     end
 
     def payload
       {
-        type: 'SystemInfo',
-        name: @process.to_s,
+        type: 'system_health_sample',
 
-        data: all_data
+        data: {
+          sampled_at: Time.now,
+
+          metrics: @metrics
+        }
       }
     end
 
     private
 
-    def all_data
+    def sample_metrics
       {
+        process: @process.to_s,
         CPU: processor_info,
         Memory: mem_info,
         Disks: disk_info,
