@@ -8,6 +8,6 @@ module Vizsla
   class Agent
     @subscribers = Subscribers.new
     @health_monitor = HealthMonitor.start
-    # @worker_process_monitor = WorkerProcessMonitor.start
+    @worker_process_monitor = WorkerProcessMonitor.start
   end
 end
