@@ -34,7 +34,7 @@ module Vizsla
         stop: @stop_time,
         duration: duration,
 
-        data: @events
+        events: @events
       }
     end
 

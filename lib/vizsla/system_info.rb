@@ -13,33 +13,30 @@ module Vizsla
       }
     end
 
-    def all_data
-      cpu_data = self.class.processor_info
-      mem_data = self.class.mem_info
-      disk_data = self.class.disk_info
-      machine_id = self.class.machine_info
+    private
 
+    def all_data
       {
-        CPU: cpu_data,
-        Memory: mem_data,
-        Disks: disk_data,
-        Machine_id: machine_id
+        CPU: processor_info,
+        Memory: mem_info,
+        Disks: disk_info,
+        Machine_id: machine_info
       }
     end
 
-    def self.ruby_os_identifier
+    def ruby_os_identifier
       RbConfig::CONFIG['target_os']
     end
 
-    def self.darwin?
+    def darwin?
       !!(ruby_os_identifier =~ /darwin/i)
     end
 
-    def self.linux?
+    def linux?
       !!(ruby_os_identifier =~ /linux/i)
     end
 
-    def self.machine_info
+    def machine_info
       ip_string = `dig +short myip.opendns.com @resolver1.opendns.com`.strip
       hostname = `hostname`.strip
       {
@@ -48,7 +45,7 @@ module Vizsla
       }
     end
 
-    def self.disk_info(disks = ["disk0"])
+    def disk_info(disks = ["disk0"])
       if darwin?
         read_iostat(disks)
       elsif linux?
@@ -56,13 +53,13 @@ module Vizsla
       end
     end
 
-    def self.parse_proc
+    def parse_proc
       {
         load_average: `cat /proc/loadavg | awk '{print $1,$2,$3}'`.strip
       }
     end
 
-    def self.read_iostat(disks)
+    def read_iostat(disks)
       disks_info = {}
       captured_data = []
 
@@ -84,7 +81,7 @@ module Vizsla
       disks_info
     end
 
-    def self.mem_info
+    def mem_info
       if darwin?
         total, wired, free, used = get_mach_memory_stats
         return {
@@ -105,18 +102,18 @@ module Vizsla
       end
     end
 
-    def self.get_mach_memory_stats
+    def get_mach_memory_stats
       used, wired, free = `top -l 1 -s 0 | grep PhysMem`.scan(/\d+/)
       total = `sysctl -n hw.memsize`.to_i / 1024 / 1024
       [total.to_s, wired, free, used]
     end
 
-    def self.get_linux_memory_stats
+    def get_linux_memory_stats
       total, used, free, _, cache, available = `free | grep Mem`.scan(/\d+/).map { |mem_stat| mem_stat.to_i / 1024 }
       [total.to_s, cache.to_s, free.to_s, used.to_s, available.to_s]
     end
 
-    def self.processor_info
+    def processor_info
       info = {}
 
       if darwin?
@@ -131,16 +128,16 @@ module Vizsla
       info
     end
 
-    def self.get_sysctl_value(key)
+    def get_sysctl_value(key)
       `sysctl -n #{key} 2>/dev/null`
     end
 
-    def self.read_proc(path)
+    def read_proc(path)
       return nil unless File.exist? path
       `cat #{path} 2>/dev/null`
     end
 
-    def self.parse_proc_cpuinfo_string(proc_string)
+    def parse_proc_cpuinfo_string(proc_string)
       threads = proc_string.split(/\n\n/).map { |core| core.split(/\n/) }
 
       units = {}
