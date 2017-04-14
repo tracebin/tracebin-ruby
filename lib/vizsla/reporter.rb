@@ -5,7 +5,9 @@ require 'concurrent'
 module Vizsla
   class Reporter
     def initialize
-      @uri = URI('http://localhost:3000/reports')
+      host = Vizsla::Agent.config.host
+      path = Vizsla::Agent.config.report_path
+      @uri = URI("#{host}/#{path}")
     end
 
     def send_data(payload)
