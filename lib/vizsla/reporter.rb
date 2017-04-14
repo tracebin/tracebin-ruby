@@ -8,6 +8,8 @@ module Vizsla
       host = Vizsla::Agent.config.host
       path = Vizsla::Agent.config.report_path
       @uri = URI("#{host}/#{path}")
+
+      @bin_id = Vizsla::Agent.config.bin_id
     end
 
     def send_data(payload)
@@ -16,7 +18,10 @@ module Vizsla
 
     def send_http(payload)
       Net::HTTP.start(@uri.host, @uri.port) do |http|
-        body = { report: payload }.to_json
+        body = {
+          bin_id: @bin_id,
+          report: payload
+        }.to_json
 
         req = Net::HTTP::Post.new @uri
         req.content_type = 'application/json'
