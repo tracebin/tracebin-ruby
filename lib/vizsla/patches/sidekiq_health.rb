@@ -1,5 +1,5 @@
 require 'vizsla/patches' unless defined?(::Vizsla::Patches)
-require 'vizsla/system_info'
+require 'vizsla/system_health_sample'
 require 'concurrent'
 
 require 'sidekiq/launcher'
@@ -9,7 +9,7 @@ require 'sidekiq/launcher'
 
   def run
     @vizsla_task = Concurrent::TimerTask.new(execution_interval: 10) do
-      health = Vizsla::SystemInfo.new process: :worker
+      health = Vizsla::SystemHealthSample.new process: :worker
       ::Vizsla::Patches.handle_event :sidekiq_health, health
     end
 

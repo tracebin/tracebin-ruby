@@ -27,18 +27,22 @@ module Vizsla
 
     def payload
       {
-        type: transaction_type,
-        name: @transaction_name,
+        type: :cycle_transaction,
 
-        start: @start_time,
-        stop: @stop_time,
-        elapsed: elapsed,
+        data: {
+          transaction_type: transaction_type,
+          name: @transaction_name,
 
-        data: @events
+          start: @start_time,
+          stop: @stop_time,
+          duration: duration,
+
+          events: @events
+        }
       }
     end
 
-    def elapsed
+    def duration
       to_milliseconds @stop_time - @start_time
     end
 

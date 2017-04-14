@@ -1,5 +1,9 @@
+require 'vizsla/helpers'
+
 module Vizsla
   class Event
+    include Vizsla::Helpers
+
     attr_reader :event
 
     def initialize(event)
@@ -14,12 +18,13 @@ module Vizsla
       true
     end
 
-    def prettify_data
+    def data_hash
       {
-        event_started: event[1],
-        event_ended: event[2],
-        event_duration: event[2] - event[1],
-        event_payload: prettify_payload
+        event_type: type,
+        start: event[1],
+        stop: event[2],
+        duration: to_milliseconds(event[2] - event[1]),
+        data: event.last
       }
     end
   end
@@ -31,48 +36,32 @@ module Vizsla
 
     private
 
-    def prettify_payload
-      {
-        query: event.last[:sql]
-      }
+    def type
+      :sql
     end
   end
 
   class ControllerEvent < Event
     private
 
-    def prettify_payload
-      payload = event.last
-      {
-        format: payload[:format],
-        controller: payload[:controller],
-        action: payload[:action],
-        path: payload[:path],
-        db_runtime: payload[:db_runtime]
-      }
+    def type
+      :controller_action
     end
   end
 
   class ViewEvent < Event
     private
 
-    def prettify_payload
-      payload = event.last
-
-      {
-        template_file: payload[:identifier],
-        layout: payload[:layout]
-      }
+    def type
+      :view
     end
   end
 
   class SinatraEvent < Event
     private
 
-    def prettify_payload
-      {
-        route: event.last
-      }
+    def type
+      :route
     end
   end
 end

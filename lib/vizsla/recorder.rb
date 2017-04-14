@@ -24,13 +24,13 @@ module Vizsla
 
       def add_event(event)
         return unless self.recording?
-        self.current[event.recorder_type] ||= []
-        self.current[event.recorder_type] << event.prettify_data
+        self.current[:events] ||= []
+        self.current[:events] << event.data_hash
       end
       alias_method :<<, :add_event
 
       def events
-        self.current
+        self.current[:events]
       end
 
       def stop_recording
