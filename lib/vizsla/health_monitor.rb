@@ -1,4 +1,5 @@
 require 'vizsla/system_health_sample'
+require 'vizsla/puppet_master'
 require 'concurrent'
 
 module Vizsla
