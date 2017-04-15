@@ -1,16 +1,19 @@
 module Vizsla
   class SystemHealthSample
+    DATA_TYPE = 'system_health_sample'.freeze
+
     def initialize(options = {})
       @process = options[:process] || :web
+      @sampled_at = Time.new
       @metrics = sample_metrics
     end
 
     def payload
       {
-        type: 'system_health_sample',
+        type: DATA_TYPE,
 
         data: {
-          sampled_at: Time.now,
+          sampled_at: @sampled_at,
 
           metrics: @metrics
         }
@@ -22,10 +25,10 @@ module Vizsla
     def sample_metrics
       {
         process: @process.to_s,
-        CPU: processor_info,
-        Memory: mem_info,
-        Disks: disk_info,
-        Machine_id: machine_info
+        cpu: processor_info,
+        memory: mem_info,
+        disks: disk_info,
+        machine_id: machine_info
       }
     end
 
@@ -44,9 +47,19 @@ module Vizsla
     def machine_info
       ip_string = `dig +short myip.opendns.com @resolver1.opendns.com`.strip
       hostname = `hostname`.strip
+
+      kernel = nil
+
+      if darwin?
+        kernel = 'darwin'
+      elsif linux?
+        kernel = 'linux'
+      end
+
       {
         hostname: hostname,
-        ip: ip_string
+        ip: ip_string,
+        kernel: kernel
       }
     end
 
@@ -90,19 +103,19 @@ module Vizsla
       if darwin?
         total, wired, free, used = get_mach_memory_stats
         return {
-          total_memory: total + " MB",
-          wired_memory: wired + " MB",
-          free_memory: free + " MB",
-          used_memory: used + " MB"
+          total_memory: total,
+          wired_memory: wired,
+          free_memory: free,
+          used_memory: used
         }
       elsif linux?
         total, cache, free, used, available = get_linux_memory_stats
         return {
-          total_memory: total + " MB",
-          wired_memory: cache + " MB",
-          free_memory: free + " MB",
-          used_memory: used + " MB",
-          available_memory: available + " MB"
+          total_memory: total,
+          wired_memory: cache,
+          free_memory: free,
+          used_memory: used,
+          available_memory: available
         }
       end
     end
@@ -110,7 +123,7 @@ module Vizsla
     def get_mach_memory_stats
       used, wired, free = `top -l 1 -s 0 | grep PhysMem`.scan(/\d+/)
       total = `sysctl -n hw.memsize`.to_i / 1024 / 1024
-      [total.to_s, wired, free, used]
+      [total.to_i, wired.to_i, free.to_i, used.to_i]
     end
 
     def get_linux_memory_stats
