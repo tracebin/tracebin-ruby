@@ -12,16 +12,28 @@ module Vizsla
     end
 
     def __call(env)
-      timer = Timer.new 'RackTransaction'
+      timer = Timer.new
       timer.start!
 
       status, headers, response = @app.call(env)
+
+      timer.transaction_name = fetch_endpoint_name env
 
       timer.stop!
 
       PuppetMaster.new(timer).process
 
       [status, headers, response]
+    end
+
+    private
+
+    def fetch_endpoint_name(env)
+      if controller = env['action_controller.instance']
+        "#{controller.class}##{controller.params['action']}"
+      else
+        'RackTransaction'
+      end
     end
   end
 end
