@@ -35,3 +35,8 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/aastro
 
 The gem is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
 
+## Notes
+
+### Storage and Reporting Strategy
+
+Multiple threads are storing information in a thread-safe array. Every minute or so, we need to access that array, empty it, and send it to our service.

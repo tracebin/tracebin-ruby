@@ -4,7 +4,9 @@ require 'concurrent'
 
 module Vizsla
   class Reporter
-    def initialize
+    def initialize(storage)
+      @storage = storage
+
       host = Vizsla::Agent.config.host
       path = Vizsla::Agent.config.report_path
       @uri = URI("#{host}/#{path}")
@@ -12,9 +14,16 @@ module Vizsla
       @bin_id = Vizsla::Agent.config.bin_id
     end
 
-    def send_data(payload)
-      Concurrent::Future.execute { send_http payload }
+    def start!
+      @task = Concurrent::TimerTask.new do
+        unless @storage.unloaded?
+          payload = @storage.unload
+          send_http payload
+        end
+      end
     end
+
+    private
 
     def send_http(payload)
       Net::HTTP.start(@uri.host, @uri.port) do |http|

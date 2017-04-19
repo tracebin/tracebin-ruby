@@ -6,23 +6,21 @@ module Vizsla
 
     def initialize
       @values = Concurrent::Array.new
-      @unloaded = true
     end
 
     def add(payload)
-      @unloaded = false
       @values << payload
     end
     alias_method :<<, :add
 
-    def clear
-      @unloaded = true
+    def unload
+      duplicate_values = @values.dup
       @values.clear
+      duplicate_values
     end
-    alias_method :unload, :clear
 
     def unloaded?
-      @unloaded
+      @values.empty?
     end
   end
 end

@@ -1,7 +1,8 @@
 require 'vizsla/subscribers'
-require 'vizsla/storage'
 require 'vizsla/health_monitor'
 require 'vizsla/worker_process_monitor'
+require 'vizsla/storage'
+require 'vizsla/reporter'
 
 module Vizsla
   module Agent
@@ -11,6 +12,8 @@ module Vizsla
       @subscribers = Subscribers.new
       @health_monitor = HealthMonitor.start
       @worker_process_monitor = WorkerProcessMonitor.start
+      @reporter = Reporter.new(storage)
+      @reporter.start!
     end
 
     def self.storage
