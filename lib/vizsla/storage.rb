@@ -13,6 +13,10 @@ module Vizsla
     end
     alias_method :<<, :add
 
+    def add_payload(payload)
+      @values += payload if payload.is_a?(Array)
+    end
+
     def unload
       duplicate_values = @values.dup
       @values.clear

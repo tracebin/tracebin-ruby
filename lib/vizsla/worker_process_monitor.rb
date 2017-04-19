@@ -10,8 +10,12 @@ module Vizsla
         self
       end
 
+      def stop!
+      end
+
       def sidekiq_health_patch
         return unless defined? ::Sidekiq
+
         ::Vizsla::Patches.patch_sidekiq_health do |health_data|
           ::Vizsla::PuppetMaster.new(health_data, logger: ::Sidekiq::Logging.logger).process
         end

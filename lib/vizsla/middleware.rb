@@ -5,6 +5,8 @@ module Vizsla
   class Middleware
     def initialize(app)
       @app = app
+
+      Vizsla::Agent.start! unless Vizsla::Agent.started?
     end
 
     def call(env)

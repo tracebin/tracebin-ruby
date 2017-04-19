@@ -1,6 +1,7 @@
 module Vizsla
   class Config
     DEFAULTS = {
+      log_level: 'info',
       host: 'http://localhost:3000',
       report_path: 'reports'
     }.freeze
