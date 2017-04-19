@@ -15,6 +15,10 @@ module Vizsla
 
         self
       end
+
+      def stop!
+        @task.shutdown
+      end
     end
   end
 end

@@ -1,4 +1,4 @@
-require 'vizsla/patches' unless defined?(::Vizsla::Patches)
+require 'vizsla/patches'
 require 'vizsla/system_health_sample'
 require 'concurrent'
 
@@ -6,6 +6,7 @@ require 'sidekiq/launcher'
 
 ::Sidekiq::Launcher.class_eval do
   alias_method :run_without_vizsla, :run
+  alias_method :stop_without_vizsla, :stop
 
   def run
     @vizsla_task = Concurrent::TimerTask.new(execution_interval: 10) do
@@ -16,5 +17,11 @@ require 'sidekiq/launcher'
     @vizsla_task.execute
 
     run_without_vizsla
+  end
+
+  def stop
+    @vizsla_task.shutdown
+
+    stop_without_vizsla
   end
 end

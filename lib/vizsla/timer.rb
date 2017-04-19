@@ -6,7 +6,8 @@ module Vizsla
   class Timer
     include ::Vizsla::Helpers
 
-    attr_reader :events, :transaction_name
+    attr_accessor :transaction_name
+    attr_reader :events
 
     def initialize(transaction_name = nil)
       @transaction_name = transaction_name
