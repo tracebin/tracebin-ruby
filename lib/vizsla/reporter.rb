@@ -33,7 +33,7 @@ module Vizsla
     end
 
     def stop!
-      logger.info 'TRACEBIN: Reporter stopping. The agent will no longer report metrics to the '
+      logger.info 'TRACEBIN: Reporter stopping. The agent will no longer report metrics to the server.'
       @task.shutdown if @task && @task.running?
     end
 
