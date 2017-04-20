@@ -1,6 +1,16 @@
 require 'vizsla/helpers'
 
 module Vizsla
+  ##
+  # This singleton class handles patching for any given library we wish to
+  # instrument. To create a new patch for a library, just create a file in the
+  # +lib/patches+ directory with any name. These files typically contain code
+  # that will monkeypatch a given library. When you wish to execute the code
+  # in that file, just call its corresponding +patch_+ method. For example, if
+  # we have a file +lib/patches/foo.rb+, then we would just call:
+  #
+  #   ::Vizsla::Patches.patch_foo
+  #
   class Patches
     include ::Vizsla::Helpers
 
