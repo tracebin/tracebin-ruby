@@ -3,8 +3,11 @@ require 'vizsla/puppet_master'
 
 module Vizsla
   class Middleware
+    attr_reader :config
+
     def initialize(app)
       @app = app
+      @config = Vizsla::Agent.config
 
       Vizsla::Agent.start! unless Vizsla::Agent.started?
     end
@@ -14,18 +17,25 @@ module Vizsla
     end
 
     def __call(env)
-      timer = Timer.new
-      timer.start!
+      path = env['REQUEST_PATH']
+      ignored_paths = config.ignored_paths.map { |root| %r{^#{root}} }
 
-      status, headers, response = @app.call(env)
+      if ignored_paths.any? { |root| !!root.match(path) }
+        @app.call env
+      else
+        timer = Timer.new
+        timer.start!
 
-      timer.transaction_name = fetch_endpoint_name env
+        status, headers, response = @app.call(env)
 
-      timer.stop!
+        timer.transaction_name = fetch_endpoint_name env
 
-      PuppetMaster.new(timer).process
+        timer.stop!
 
-      [status, headers, response]
+        PuppetMaster.new(timer).process
+
+        [status, headers, response]
+      end
     end
 
     private

@@ -3,7 +3,8 @@ module Vizsla
     DEFAULTS = {
       log_level: 'info',
       host: 'http://localhost:3000',
-      report_path: 'reports'
+      report_path: 'reports',
+      ignored_paths: []
     }.freeze
 
     attr_accessor *(DEFAULTS.keys + [:bin_id])
