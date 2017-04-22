@@ -4,6 +4,10 @@ require 'vizsla/events'
 require 'vizsla/background_job_instrumentation'
 
 module Vizsla
+  ##
+  # Subscribes to certain events, handels them, and passes event data to the
+  # +Recorder+ class.
+  #
   class Subscribers
     def initialize
       @events_data = Recorder
@@ -25,12 +29,14 @@ module Vizsla
     def rails_hooks
       sql_hook
       process_action_hook
+      render_layout_hook
       render_template_hook
     end
 
     def other_hooks
       sinatra_hook if sinatra_app?
       db_hooks
+      background_job_hooks
     end
 
     def background_job_hooks

@@ -22,7 +22,7 @@
         start_time,
         end_time,
         {
-          layout: layout.identifier
+          identifier: layout.identifier
         }
       ]
 
