@@ -59,6 +59,15 @@ module Vizsla
       subscribe_asn 'process_action.action_controller', ControllerEvent
     end
 
+    def render_layout_hook
+      unless [ActionPack::VERSION::MAJOR, ActionPack::VERSION::MINOR] == [3, 0]
+        ::Vizsla::Patches.patch_action_view_layout do |event_data|
+          event = ViewEvent.new event_data
+          @events_data << event
+        end
+      end
+    end
+
     def render_template_hook
       subscribe_asn 'render_template.action_view', ViewEvent
     end
