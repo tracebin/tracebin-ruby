@@ -4,12 +4,12 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'vizsla/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = "vizsla"
+  spec.name          = "tracebin"
   spec.version       = Vizsla::VERSION
   spec.authors       = ["Tyler Guillen"]
   spec.email         = ["tyguillen@gmail.com"]
 
-  spec.summary       = "Easy performance analytics for your Rack/Rails app!"
+  spec.summary       = "Easy performance analytics for your Rack/Rails app! Formerly known as 'vizsla.'"
   spec.homepage      = "https://google.com"
   spec.license       = "MIT"
 
