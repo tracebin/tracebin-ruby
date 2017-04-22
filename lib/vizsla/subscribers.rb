@@ -6,7 +6,24 @@ require 'vizsla/background_job_instrumentation'
 module Vizsla
   ##
   # Subscribes to certain events, handels them, and passes event data to the
-  # +Recorder+ class.
+  # +Recorder+ class. The general workflow goes like this:
+  #
+  # 1. Patch the method you want to profile. It should generate an array that
+  # looks like the following:
+  #
+  #   [
+  #     "event_type.event_domain",
+  #     start_time,
+  #     stop_time,
+  #     etc...,
+  #     { event: :data }
+  #   ]
+  #
+  # Note that the event hash must be the last element in the array (this is to
+  # maintain consistency with ActiveSupport::Notifications).
+  #
+  # 2. Store that event array into an appropriate +Event+ subclass.
+  # 3. Add each +Event+ object to +@events_data+ using the +#<<+ method.
   #
   class Subscribers
     def initialize
@@ -31,6 +48,7 @@ module Vizsla
       process_action_hook
       render_layout_hook
       render_template_hook
+      render_partial_hook
     end
 
     def other_hooks
@@ -76,6 +94,10 @@ module Vizsla
 
     def render_template_hook
       subscribe_asn 'render_template.action_view', ViewEvent
+    end
+
+    def render_partial_hook
+      subscribe_asn 'render_partial.action_view', ViewEvent
     end
 
     def active_job_hook
