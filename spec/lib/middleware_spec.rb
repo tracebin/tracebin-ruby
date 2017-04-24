@@ -1,21 +1,21 @@
 require 'spec_helper'
 
-describe Vizsla::Middleware do
+describe Tracebin::Middleware do
   let(:app) { double 'app', call: ['ststus', 'headers', 'response'] }
   let(:env) { double 'env' }
   let(:timer) do
-    instance_double 'Vizsla::Timer',
+    instance_double 'Tracebin::Timer',
     start!: nil,
     stop!: nil,
       elapsed: '0s'
   end
   let(:logger) { double 'logger', debug: nil }
   let(:rails) { double 'Rails', logger: logger }
-  let(:middleware) { Vizsla::Middleware.new(app) }
+  let(:middleware) { Tracebin::Middleware.new(app) }
 
   before do
-    stub_const 'Vizsla::Middleware::Rails', rails
-    Vizsla::Timer.stub(:new).and_return timer
+    stub_const 'Tracebin::Middleware::Rails', rails
+    Tracebin::Timer.stub(:new).and_return timer
   end
 
   after do
