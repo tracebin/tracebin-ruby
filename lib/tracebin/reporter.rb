@@ -62,7 +62,7 @@ module Tracebin
       res
     rescue Exception => e
       logger.warn "TRACEBIN: Exception occurred sending data to the server: #{e.message}"
-      logger.debug "TRACEBIN: #{e.backtrace}"
+      logger.debug "TRACEBIN: #{e.backtrace.join("\n\t")}"
       Tracebin::Agent.stop!
     end
 
@@ -70,8 +70,11 @@ module Tracebin
       case res
       when Net::HTTPSuccess
         logger.info 'TRACEBIN: Successfully sent payload to the server.'
-      when Net::HTTPBadRequest
+      when Net::HTTPNotFound
         logger.warn 'TRACEBIN: App bin ID not found. Please create a new app bin and add it to the config.'
+        Tracebin::Agent.stop!
+      when Net::HTTPBadRequest
+        logger.warn 'Something went wrong with the server. Please contact us!'
         Tracebin::Agent.stop!
       else
         logger.warn 'TRACEBIN: Failed to send data to the server. Will try again in 1 minute.'
