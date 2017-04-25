@@ -1,4 +1,4 @@
-require 'net/http'
+require 'net/https'
 require 'json'
 require 'concurrent'
 
@@ -41,21 +41,28 @@ module Tracebin
 
     def send_data(payload)
       logger.info 'TRACEBIN: Sending analytics data to the server.'
+      logger.info "TRACEBIN: Sending #{payload.length} samples to: #{@uri}"
 
-      Net::HTTP.start(@uri.host, @uri.port) do |http|
-        body = {
-          bin_id: @bin_id,
-          report: payload
-        }.to_json
+      http = Net::HTTP.new @uri.host, @uri.port
+      http.use_ssl = true
+      http.verify_mode = OpenSSL::SSL::VERIFY_NONE
 
-        req = Net::HTTP::Post.new @uri
-        req.content_type = 'application/json'
-        req.body = body
+      body = {
+        bin_id: @bin_id,
+        report: payload
+      }.to_json
 
-        http.request req
-      end
+      req = Net::HTTP::Post.new @uri
+      req.content_type = 'application/json'
+      req.body = body
+
+      res = http.request req
+      logger.debug "TRACEBIN: Server responded with a status code of #{res.code}."
+
+      res
     rescue Exception => e
       logger.warn "TRACEBIN: Exception occurred sending data to the server: #{e.message}"
+      self.stop!
     end
 
     def handle_response(res, payload)

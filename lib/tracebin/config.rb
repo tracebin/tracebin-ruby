@@ -2,7 +2,7 @@ module Tracebin
   class Config
     DEFAULTS = {
       log_level: 'info',
-      host: 'http://localhost:3000',
+      host: 'https://traceb.in',
       report_path: 'reports',
       ignored_paths: []
     }.freeze
