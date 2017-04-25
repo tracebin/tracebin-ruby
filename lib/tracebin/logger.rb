@@ -25,7 +25,7 @@ module Tracebin
             if ele.is_a? Hash
               str_append_hash str, ele, bumper + '  '
             else
-              str << "#{bumper}#{ele}"
+              str << "#{bumper}#{ele}\n"
             end
           end
         else

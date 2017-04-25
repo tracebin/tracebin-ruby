@@ -12,7 +12,7 @@ module Tracebin
       attr_accessor :config, :storage, :logger
 
       def start!
-        logger.info "Starting Tracebin agent..."
+        logger.info "TRACEBIN: Starting Tracebin agent..."
 
         @subscribers = Subscribers.new
         @health_monitor = HealthMonitor.start
@@ -22,11 +22,11 @@ module Tracebin
 
         @reporter.start!
 
-        logger.info "Tracebin agent started!"
+        logger.info "TRACEBIN: Tracebin agent started!"
       end
 
       def stop!
-        logger.info "Shutting down Tracebin agent..."
+        logger.info "TRACEBIN: Shutting down Tracebin agent..."
 
         @health_monitor.stop!
         @worker_process_monitor.stop!
@@ -34,7 +34,7 @@ module Tracebin
 
         @started = false
 
-        logger.info "Tracebin agent stopped!"
+        logger.info "TRACEBIN: Tracebin agent stopped!"
       end
 
       def started?

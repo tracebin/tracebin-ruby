@@ -54,7 +54,6 @@ module Tracebin
     def other_hooks
       sinatra_hook if sinatra_app?
       db_hooks
-      background_job_hooks
     end
 
     def background_job_hooks
