@@ -14,8 +14,10 @@
 
     if layout
       start_time = Time.now
-      render_with_layout_without_tracebin(path, locals, *args, &block)
-      end_time = Time.new
+
+      result = render_with_layout_without_tracebin(path, locals, *args, &block)
+
+      end_time = Time.now
 
       event_data = [
         'render_layout.action_view',
@@ -27,6 +29,8 @@
       ]
 
       ::Tracebin::Patches.handle_event :action_view_layout, event_data
+
+      result
     else
       render_with_layout_without_tracebin(path, locals, *args, &block)
     end

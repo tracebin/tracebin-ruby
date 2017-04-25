@@ -62,6 +62,7 @@ module Tracebin
       res
     rescue Exception => e
       logger.warn "TRACEBIN: Exception occurred sending data to the server: #{e.message}"
+      logger.debug "TRACEBIN: #{e.backtrace}"
       Tracebin::Agent.stop!
     end
 

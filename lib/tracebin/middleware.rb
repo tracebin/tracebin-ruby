@@ -3,13 +3,14 @@ require 'tracebin/puppet_master'
 
 module Tracebin
   class Middleware
-    attr_reader :config
+    attr_reader :config, :logger
 
     def initialize(app)
       @app = app
       @config = Tracebin::Agent.config
+      @logger = Tracebin::Agent.logger
 
-      Tracebin::Agent.start! unless Tracebin::Agent.started?
+      start_agent
     end
 
     def call(env)
@@ -17,24 +18,21 @@ module Tracebin
     end
 
     def __call(env)
-      path = env['REQUEST_PATH']
-      ignored_paths = config.ignored_paths.map { |root| %r{^#{root}} }
-
-      if ignored_paths.any? { |root| !!root.match(path) }
-        @app.call env
+      if agent_disabled?(env)
+        return @app.call env
       else
-        timer = Timer.new
-        timer.start!
+        @tracebin_timer = Timer.new
+        @tracebin_timer.start!
 
         status, headers, response = @app.call(env)
 
-        timer.transaction_name = fetch_endpoint_name env
+        @tracebin_timer.transaction_name = fetch_endpoint_name(env)
 
-        timer.stop!
+        @tracebin_timer.stop!
 
-        PuppetMaster.new(timer).process
+        PuppetMaster.new(@tracebin_timer).process
 
-        [status, headers, response]
+        return [status, headers, response]
       end
     end
 
@@ -46,6 +44,20 @@ module Tracebin
       else
         'RackTransaction'
       end
+    end
+
+    def start_agent
+      Tracebin::Agent.start!
+    rescue => e
+      @logger.warn "TRACEBIN: Failed to start agent: #{e.message}"
+    end
+
+    def agent_disabled?(env)
+      path = env['REQUEST_PATH']
+      ignored_paths = config.ignored_paths.map { |root| %r{^#{root}} }
+
+      !Tracebin::Agent.started? ||
+        ignored_paths.any? { |root| !!root.match(path) }
     end
   end
 end
