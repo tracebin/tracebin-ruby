@@ -4,7 +4,8 @@ module Tracebin
       log_level: 'info',
       host: 'https://traceb.in',
       report_path: 'reports',
-      ignored_paths: []
+      ignored_paths: [],
+      enabled: true
     }.freeze
 
     attr_accessor *(DEFAULTS.keys + [:bin_id])

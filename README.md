@@ -1,5 +1,7 @@
 # tracebin-ruby
 
+This is the official Ruby agent for Tracebin, a simple performance monitoring tool for web applications. Go to [traceb.in](https://traceb.in) to get started.
+
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -10,15 +12,31 @@ gem 'tracebin'
 
 And then execute:
 
-    $ bundle
+```
+$ bundle
+```
 
-Or install it yourself as:
+Configure the gem to point to this bin:
 
-    $ gem install tracebin
+```ruby
+Tracebin::Agent.configure do |config|
+  config.bin_id = '<YOUR BIN ID>'
+end
+```
 
-## Usage
+## Configuration
 
-TODO: Write usage instructions here
+There are several configuration options available for the Tracebin agent. Just set the options in a `configure` block on `Tracebin::Agent`:
+
+```ruby
+Tracebin::Agent.configure do |config|
+  config.ignored_paths = ['/assets'] # Put any paths you wish to ignore in an array.
+
+  if Rails.env.development? || Rails.env.test?
+    config.enabled = false # You can completely disable the agent under the conditions of your choosing.
+  end
+end
+```
 
 ## Development
 

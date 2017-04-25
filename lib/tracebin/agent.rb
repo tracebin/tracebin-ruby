@@ -12,6 +12,8 @@ module Tracebin
       attr_accessor :config, :storage, :logger
 
       def start!
+        return if started? || !config.enabled
+
         logger.info "TRACEBIN: Starting Tracebin agent..."
 
         @subscribers = Subscribers.new
@@ -21,16 +23,21 @@ module Tracebin
         @reporter = Reporter.new(storage, config, logger)
 
         @reporter.start!
+        @started = true
 
         logger.info "TRACEBIN: Tracebin agent started!"
       end
 
       def stop!
+        return unless started?
+
         logger.info "TRACEBIN: Shutting down Tracebin agent..."
 
         @health_monitor.stop!
         @worker_process_monitor.stop!
         @reporter.stop!
+
+        storage.unload
 
         @started = false
 

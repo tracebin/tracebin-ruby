@@ -62,7 +62,7 @@ module Tracebin
       res
     rescue Exception => e
       logger.warn "TRACEBIN: Exception occurred sending data to the server: #{e.message}"
-      self.stop!
+      Tracebin::Agent.stop!
     end
 
     def handle_response(res, payload)
@@ -71,7 +71,7 @@ module Tracebin
         logger.info 'TRACEBIN: Successfully sent payload to the server.'
       when Net::HTTPBadRequest
         logger.warn 'TRACEBIN: App bin ID not found. Please create a new app bin and add it to the config.'
-        self.stop!
+        Tracebin::Agent.stop!
       else
         logger.warn 'TRACEBIN: Failed to send data to the server. Will try again in 1 minute.'
         @storage.add_payload payload
