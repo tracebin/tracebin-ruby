@@ -41,6 +41,8 @@ module Tracebin
     def fetch_endpoint_name(env)
       if controller = env['action_controller.instance']
         "#{controller.class}##{controller.params['action']}"
+      elsif route = env['sinatra.route']
+        route
       else
         'RackTransaction'
       end

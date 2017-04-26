@@ -8,10 +8,12 @@
     route = env['sinatra.route']
 
     event_data = [
-      'sinatra.route_exec',
+      'sinatra.route',
       start_time,
       end_time,
-      route
+      {
+        endpoint: route
+      }
     ]
 
     ::Tracebin::Patches.handle_event :sinatra, event_data

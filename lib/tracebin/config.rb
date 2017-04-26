@@ -4,6 +4,7 @@ module Tracebin
       log_level: 'info',
       host: 'https://traceb.in',
       report_path: 'reports',
+      enable_ssl: true,
       ignored_paths: [],
       enabled: true
     }.freeze

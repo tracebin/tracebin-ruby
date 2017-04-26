@@ -1,4 +1,3 @@
-require 'net/https'
 require 'json'
 require 'concurrent'
 
@@ -10,6 +9,12 @@ module Tracebin
       @logger = logger
       @config = config
       @storage = storage
+
+      if config.enable_ssl
+        require 'net/https'
+      else
+        require 'net/http'
+      end
 
       host = Tracebin::Agent.config.host
       path = Tracebin::Agent.config.report_path
@@ -44,8 +49,11 @@ module Tracebin
       logger.info "TRACEBIN: Sending #{payload.length} samples to: #{@uri}"
 
       http = Net::HTTP.new @uri.host, @uri.port
-      http.use_ssl = true
-      http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
+      if config.enable_ssl
+        http.use_ssl = true
+        http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+      end
 
       body = {
         bin_id: @bin_id,
