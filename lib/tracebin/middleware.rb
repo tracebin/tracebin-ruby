@@ -55,6 +55,7 @@ module Tracebin
     end
 
     def agent_disabled?(env)
+      @logger.info "TRACEBIN: Tracebin disabled for this request."
       path = env['REQUEST_PATH']
       ignored_paths = config.ignored_paths.map { |root| %r{^#{root}} }
 
