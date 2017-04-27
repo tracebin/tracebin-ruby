@@ -23,7 +23,7 @@ module Tracebin
         event_type: type,
         start: event[1],
         stop: event[2],
-        duration: to_milliseconds(event[2] - event[1]),
+        duration: milliseconds_between(event[2], event[1]),
         data: select_data || event.last
       }
     end
