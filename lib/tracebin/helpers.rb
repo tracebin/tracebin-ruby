@@ -4,6 +4,10 @@ module Tracebin
       time.to_f * 1000
     end
 
+    def time_to_string(time)
+      time.is_a?(String) ? time : time.iso8601(6)
+    end
+
     def timestamp_string
       Time.now.iso8601 6
     end

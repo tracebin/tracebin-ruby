@@ -21,8 +21,8 @@ module Tracebin
     def data_hash
       {
         event_type: type,
-        start: event[1],
-        stop: event[2],
+        start: time_to_string(event[1]),
+        stop: time_to_string(event[2]),
         duration: milliseconds_between(event[2], event[1]),
         data: select_data || event.last
       }
