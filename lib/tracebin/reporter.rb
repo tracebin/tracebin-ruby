@@ -24,7 +24,9 @@ module Tracebin
     end
 
     def start!
-      @task = Concurrent::TimerTask.new do
+      freq = config.report_frequency
+
+      @task = Concurrent::TimerTask.new(execution_interval: freq) do
         unless storage.unloaded?
           payload = storage.unload
           res = send_data payload

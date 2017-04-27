@@ -15,12 +15,13 @@ module Tracebin
         return if started? || !config.enabled
 
         logger.info "TRACEBIN: Starting Tracebin agent..."
+        init_storage
 
         @subscribers = Subscribers.new
         @health_monitor = HealthMonitor.start
         @worker_process_monitor = WorkerProcessMonitor.start
 
-        @reporter = Reporter.new(storage, config, logger)
+        @reporter = Reporter.new
 
         @reporter.start!
         @started = true
@@ -69,15 +70,19 @@ module Tracebin
         else Logger::INFO
         end
       end
+
+      def init_storage
+        @storage = ::Tracebin::Storage.new
+      end
     end
 
     def self.logger
       @logger || init_logger
     end
 
-    def self.storage
-      @storage ||= ::Tracebin::Storage.new
-    end
+    # def self.storage
+    #   @storage ||= ::Tracebin::Storage.new
+    # end
 
     def self.config
       @config ||= Config.new

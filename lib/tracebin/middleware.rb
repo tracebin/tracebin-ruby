@@ -8,9 +8,11 @@ module Tracebin
 
     def initialize(app)
       @app = app
+
       @config = Tracebin::Agent.config
       @logger = Tracebin::Agent.logger
 
+      start_agent
     end
 
     def call(env)
@@ -18,8 +20,6 @@ module Tracebin
     end
 
     def __call(env)
-      start_agent
-
       if agent_disabled?(env)
         @logger.debug "TRACEBIN: Tracebin disabled for this request."
         return @app.call env
