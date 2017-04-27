@@ -1,5 +1,6 @@
 require 'tracebin/timer'
 require 'tracebin/puppet_master'
+# require 'tracebin/initializer'
 
 module Tracebin
   class Middleware
@@ -10,7 +11,6 @@ module Tracebin
       @config = Tracebin::Agent.config
       @logger = Tracebin::Agent.logger
 
-      start_agent
     end
 
     def call(env)
@@ -18,7 +18,10 @@ module Tracebin
     end
 
     def __call(env)
+      start_agent
+
       if agent_disabled?(env)
+        @logger.debug "TRACEBIN: Tracebin disabled for this request."
         return @app.call env
       else
         @tracebin_timer = Timer.new
@@ -55,7 +58,6 @@ module Tracebin
     end
 
     def agent_disabled?(env)
-      @logger.info "TRACEBIN: Tracebin disabled for this request."
       path = env['REQUEST_PATH']
       ignored_paths = config.ignored_paths.map { |root| %r{^#{root}} }
 

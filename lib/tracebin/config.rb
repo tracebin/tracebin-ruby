@@ -6,7 +6,8 @@ module Tracebin
       report_path: 'reports',
       enable_ssl: true,
       ignored_paths: [],
-      enabled: true
+      enabled: true,
+      report_frequency: 60
     }.freeze
 
     attr_accessor *(DEFAULTS.keys + [:bin_id])
