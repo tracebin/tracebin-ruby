@@ -13,11 +13,11 @@
     end
 
     if layout
-      start_time = Time.now
+      start_time = ::Tracebin::PatchHelper.timestamp_string
 
       result = render_with_layout_without_tracebin(path, locals, *args, &block)
 
-      end_time = Time.now
+      end_time = ::Tracebin::PatchHelper.timestamp_string
 
       event_data = [
         'render_layout.action_view',

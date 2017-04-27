@@ -2,9 +2,9 @@
   alias_method :dispatch_without_tracebin!, :dispatch!
 
   def dispatch!(*args, &block)
-    start_time = Time.now
+    start_time = ::Tracebin::PatchHelper.timestamp_string
     result = dispatch_without_tracebin!(*args, *block)
-    end_time = Time.now
+    end_time = ::Tracebin::PatchHelper.timestamp_string
     route = env['sinatra.route']
 
     event_data = [

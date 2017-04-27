@@ -1,10 +1,12 @@
 module Tracebin
   class SystemHealthSample
+    include ::Tracebin::Helpers
+
     DATA_TYPE = 'system_health_sample'.freeze
 
     def initialize(options = {})
       @process = options[:process] || :web
-      @sampled_at = Time.new
+      @sampled_at = timestamp_string
       @metrics = sample_metrics
     end
 

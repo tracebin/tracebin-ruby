@@ -2,6 +2,10 @@ require 'tracebin/recorder'
 require 'tracebin/helpers'
 
 module Tracebin
+  ##
+  # This is the timer for a top-level transaction. Transactions include
+  # request/response cycles, as well as background jobs. Background jobs
+  # subclass this class and overwrite the +#transaction_type+ method.
   class Timer
     include ::Tracebin::Helpers
 
@@ -15,14 +19,14 @@ module Tracebin
     end
 
     def start!
-      @start_time = Time.now
+      @start_time = timestamp_string
       Recorder.start_recording
     end
 
     def stop!
       collect_events
       Recorder.stop_recording
-      @stop_time = Time.now
+      @stop_time = timestamp_string
     end
 
     def payload
@@ -43,7 +47,7 @@ module Tracebin
     end
 
     def duration
-      to_milliseconds @stop_time - @start_time
+      milliseconds_between @stop_time, @start_time
     end
 
     def transaction_type
