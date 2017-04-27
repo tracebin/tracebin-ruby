@@ -141,9 +141,11 @@ module Tracebin
         info[:processor_count] = get_sysctl_value('hw.packages').to_i
         info[:core_count] = get_sysctl_value('hw.physicalcpu_max').to_i,
         info[:logical_cpu_count] = get_sysctl_value('hw.logicalcpu_max').to_i
+        info[:usage] = get_darwin_cpu_usage
       elsif linux?
         proc_string = read_proc('/proc/cpuinfo')
         info = parse_proc_cpuinfo_string(proc_string)
+        info[:usage] = get_linux_cpu_usage
       end
       info
     end
@@ -184,6 +186,25 @@ module Tracebin
         core_count: cores.count,
         logical_cpu_count: threads.count
       }
+    end
+
+    def get_darwin_cpu_usage
+      iostat = `iostat 2>/dev/null`.split(/\n+/).map do |line|
+        line.strip.split(/\s+/)
+      end
+      cpu_idx = iostat[0].index('cpu') * 3
+      user, sys, idle = iostat[2].map(&:to_f)[cpu_idx..cpu_idx + 2]
+
+      (user + sys) / (user + sys + idle)
+    end
+
+    def get_linux_cpu_usage
+      proc_data = File.readlines('/proc/stat').grep(/^cpu /).first.split(" ")
+
+      usage = proc_data[1].to_i + proc_data[2].to_i + proc_data[3].to_i
+      total = usage + proc_data[4].to_i
+
+      usage.to_f / total.to_f
     end
   end
 end
