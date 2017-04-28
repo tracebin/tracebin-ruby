@@ -93,4 +93,16 @@ module Tracebin
       nil
     end
   end
+
+  class CustomEvent < Event
+    private
+
+    def type
+      :other
+    end
+
+    def select_data
+      nil
+    end
+  end
 end

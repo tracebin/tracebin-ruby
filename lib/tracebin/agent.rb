@@ -5,6 +5,7 @@ require 'tracebin/health_monitor'
 require 'tracebin/worker_process_monitor'
 require 'tracebin/storage'
 require 'tracebin/reporter'
+require 'tracebin/custom_instrumentation'
 
 module Tracebin
   module Agent
