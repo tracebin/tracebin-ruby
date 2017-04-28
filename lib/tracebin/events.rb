@@ -98,7 +98,7 @@ module Tracebin
     private
 
     def type
-      :custom
+      :other
     end
 
     def select_data
