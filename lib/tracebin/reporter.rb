@@ -26,7 +26,7 @@ module Tracebin
     def start!
       freq = config.report_frequency
 
-      @task = Concurrent::TimerTask.new(execution_interval: freq) do
+      @task = Concurrent::TimerTask.new execution_interval: freq do
         unless storage.unloaded?
           payload = storage.unload
           res = send_data payload
@@ -73,7 +73,7 @@ module Tracebin
     rescue Exception => e
       logger.warn "TRACEBIN: Exception occurred sending data to the server: #{e.message}"
       logger.debug "TRACEBIN: #{e.backtrace.join("\n\t")}"
-      Tracebin::Agent.stop!
+      stop_all_agent_processes
     end
 
     def handle_response(res, payload)
@@ -82,14 +82,19 @@ module Tracebin
         logger.info 'TRACEBIN: Successfully sent payload to the server.'
       when Net::HTTPNotFound
         logger.warn 'TRACEBIN: App bin ID not found. Please create a new app bin and add it to the config.'
-        Tracebin::Agent.stop!
+        stop_all_agent_processes
       when Net::HTTPBadRequest
         logger.warn 'Something went wrong with the server. Please contact us!'
-        Tracebin::Agent.stop!
+        stop_all_agent_processes
       else
         logger.warn 'TRACEBIN: Failed to send data to the server. Will try again in 1 minute.'
         @storage.add_payload payload
       end
+    end
+
+    def stop_all_agent_processes
+      ::Tracebin::Agent.stop_parent_process
+      ::Tracebin::Agent.stop_child_process
     end
   end
 end

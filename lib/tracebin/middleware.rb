@@ -12,7 +12,7 @@ module Tracebin
       @config = Tracebin::Agent.config
       @logger = Tracebin::Agent.logger
 
-      start_agent
+      start_agent_parent_process
     end
 
     def call(env)
@@ -20,6 +20,8 @@ module Tracebin
     end
 
     def __call(env)
+      start_agent_child_process
+
       if agent_disabled?(env)
         @logger.debug "TRACEBIN: Tracebin disabled for this request."
         return @app.call env
@@ -51,17 +53,19 @@ module Tracebin
       end
     end
 
-    def start_agent
-      Tracebin::Agent.start!
-    rescue => e
-      @logger.warn "TRACEBIN: Failed to start agent: #{e.message}"
+    def start_agent_child_process
+      Tracebin::Agent.start_child_process
+    end
+
+    def start_agent_parent_process
+      Tracebin::Agent.start_parent_process
     end
 
     def agent_disabled?(env)
       path = env['REQUEST_PATH']
       ignored_paths = config.ignored_paths.map { |root| %r{^#{root}} }
 
-      !Tracebin::Agent.started? ||
+      !Tracebin::Agent.child_process_started? ||
         ignored_paths.any? { |root| !!root.match(path) }
     end
   end

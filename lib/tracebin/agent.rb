@@ -11,42 +11,76 @@ module Tracebin
     class << self
       attr_accessor :config, :storage, :logger
 
-      def start!
-        return if started? || !config.enabled
+      def start_parent_process
+        return if parent_process_started? || !config.enabled
 
-        logger.info "TRACEBIN: Starting Tracebin agent..."
+        logger.info "TRACEBIN: Starting Tracebin parent process..."
         init_storage
 
         @subscribers = Subscribers.new
         @health_monitor = HealthMonitor.start
         @worker_process_monitor = WorkerProcessMonitor.start
 
-        @reporter = Reporter.new
+        @parent_process_reporter = Reporter.new
+        @parent_process_reporter.start!
 
-        @reporter.start!
-        @started = true
-
-        logger.info "TRACEBIN: Tracebin agent started!"
+        @parent_process_started = true
+        logger.info "TRACEBIN: Tracebin parent process started!"
+      rescue => e
+        logger.info "TRACEBIN: Error occurred while trying to start parent process: #{e.message}"
       end
 
-      def stop!
-        return unless started?
+      def start_child_process
+        return if child_process_started? || !config.enabled
 
-        logger.info "TRACEBIN: Shutting down Tracebin agent..."
+        logger.info "TRACEBIN: Starting Tracebin child process..."
+        init_storage
+
+        @child_process_reporter = Reporter.new
+        @child_process_reporter.start!
+
+        @child_process_started = true
+        logger.info "TRACEBIN: Tracebin child process started!"
+      rescue => e
+        logger.info "TRACEBIN: Error occurred while trying to start child process: #{e.message}"
+      end
+
+      def stop_parent_process
+        return unless parent_process_started?
+
+        logger.info "TRACEBIN: Shutting down parent process..."
 
         @health_monitor.stop!
         @worker_process_monitor.stop!
-        @reporter.stop!
+        @parent_process_reporter.stop!
 
         storage.unload
 
-        @started = false
+        @parent_process_started = false
 
-        logger.info "TRACEBIN: Tracebin agent stopped!"
+        logger.info "TRACEBIN: Parent process stopped!"
       end
 
-      def started?
-        @started
+      def stop_child_processes
+        return unless child_process_started?
+
+        logger.info "TRACEBIN: Shutting down child process..."
+
+        @child_process_reporter.stop!
+
+        storage.unload
+
+        @child_process_started = false
+
+        logger.info "TRACEBIN: Child process stopped!"
+      end
+
+      def parent_process_started?
+        @parent_process_started
+      end
+
+      def child_process_started?
+        @child_process_started
       end
 
       def init_logger
@@ -79,10 +113,6 @@ module Tracebin
     def self.logger
       @logger || init_logger
     end
-
-    # def self.storage
-    #   @storage ||= ::Tracebin::Storage.new
-    # end
 
     def self.config
       @config ||= Config.new
