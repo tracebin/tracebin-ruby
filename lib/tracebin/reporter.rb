@@ -9,6 +9,7 @@ module Tracebin
       @logger = logger
       @config = config
       @storage = storage
+      @retry_limit = config.report_retry_limit
 
       if config.enable_ssl
         require 'net/https'
@@ -24,7 +25,10 @@ module Tracebin
     end
 
     def start!
-      @task = Concurrent::TimerTask.new do
+      freq = config.report_frequency >= 5 ? config.report_frequency : 5
+      @retries = 0
+
+      @task = Concurrent::TimerTask.new execution_interval: freq do
         unless storage.unloaded?
           payload = storage.unload
           res = send_data payload
@@ -71,22 +75,41 @@ module Tracebin
     rescue Exception => e
       logger.warn "TRACEBIN: Exception occurred sending data to the server: #{e.message}"
       logger.debug "TRACEBIN: #{e.backtrace.join("\n\t")}"
-      Tracebin::Agent.stop!
+      stop_all_agent_processes
     end
 
     def handle_response(res, payload)
       case res
       when Net::HTTPSuccess
+        @retries = 0
         logger.info 'TRACEBIN: Successfully sent payload to the server.'
       when Net::HTTPNotFound
         logger.warn 'TRACEBIN: App bin ID not found. Please create a new app bin and add it to the config.'
-        Tracebin::Agent.stop!
+        stop_all_agent_processes
       when Net::HTTPBadRequest
-        logger.warn 'Something went wrong with the server. Please contact us!'
-        Tracebin::Agent.stop!
+        logger.warn 'TRACEBIN: Something went wrong with the server. Please contact us!'
+        stop_all_agent_processes
+      when Net::HTTPRequestTimeout
+        handle_timeout
       else
-        logger.warn 'TRACEBIN: Failed to send data to the server. Will try again in 1 minute.'
+        logger.warn 'TRACEBIN: Failed to send data to the server.'
+        stop_all_agent_processes
+      end
+    end
+
+    def stop_all_agent_processes
+      ::Tracebin::Agent.stop_parent_process
+      ::Tracebin::Agent.stop_child_process
+    end
+
+    def handle_timeout
+      if @retries < @retry_limit
+        logger.info "TRACEBIN: Couldn't contact the server. Will try again in #{config.report_frequency} seconds."
         @storage.add_payload payload
+        @retries += 1
+      else
+        logger.warn "TRACEBIN: Couldn't contact the server. Retry limit reached."
+        stop_all_agent_processes
       end
     end
   end
