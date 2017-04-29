@@ -38,6 +38,35 @@ Tracebin::Agent.configure do |config|
 end
 ```
 
+## Compatibility
+
+`tracebin-ruby` has instrumentation in place for the following components:
+
+### Rails
+
+`tracebin-ruby` is compatible with Rails 4+.
+
+- ActionController
+- ActiveRecord
+- ActionView
+
+### Background Jobs
+
+- ActiveJob
+- Sidekiq
+- Resque
+
+### Sinatra
+
+- Routes (used in place of ActionController)
+
+### Databases
+
+If ActiveRecord isn't used, then we've implemented patches for the following database adapters:
+
+- PG (PostgreSQL)
+- Mysql2 (MySQL)
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.

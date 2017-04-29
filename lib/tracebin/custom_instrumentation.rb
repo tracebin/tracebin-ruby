@@ -36,6 +36,7 @@ module Tracebin
     end
   end
 
+  # Module Tracebin
   class << self
     def instrument(*args, &block)
       Tracebin::CustomInstrumentation.instrument *args, &block
