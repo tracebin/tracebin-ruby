@@ -5,15 +5,15 @@ module Tracebin
     end
 
     def time_to_string(time)
-      time.is_a?(String) ? time : time.iso8601(6)
+      time.is_a?(String) ? time : time.in_time_zone('UTC').iso8601(6)
     end
 
     def timestamp_string
-      Time.now.iso8601 6
+      Time.now.in_time_zone('UTC').iso8601 6
     end
 
     def deserialize_time_string(str)
-      Time.parse str
+      Time.parse(str).in_time_zone('UTC')
     end
 
     def milliseconds_between(time1, time2)
